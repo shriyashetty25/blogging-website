@@ -15,6 +15,22 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.85rem 0;
+  flex-wrap: wrap;
+}
+
+.navbar-search input {
+  width: min(220px, 40vw);
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--rule);
+  background: #fff;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+}
+
+.navbar-search input:focus {
+  outline: 1px solid var(--ink);
+  border-color: var(--ink);
 }
 
 .navbar-mark {

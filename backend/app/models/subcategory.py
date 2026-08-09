@@ -32,3 +32,5 @@ class Subcategory(Base):
     )
 
     category = relationship("Category", back_populates="subcategories")
+    blogs = relationship("Blog", back_populates="subcategory")
+

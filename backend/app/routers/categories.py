@@ -3,7 +3,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.dependencies.auth import get_current_admin
 from app.models.category import Category
+from app.models.user import User
 from app.schemas.category import CategoryCreate, CategoryRead, CategoryUpdate
 
 router = APIRouter(prefix="/api/categories", tags=["categories"])
@@ -15,7 +17,11 @@ def list_categories(db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=CategoryRead, status_code=status.HTTP_201_CREATED)
-def create_category(payload: CategoryCreate, db: Session = Depends(get_db)):
+def create_category(
+    payload: CategoryCreate,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_admin),
+):
     category = Category(
         name=payload.name.strip(),
         slug=payload.slug.strip().lower(),
@@ -50,6 +56,7 @@ def update_category(
     category_id: int,
     payload: CategoryUpdate,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_admin),
 ):
     category = db.query(Category).filter(Category.id == category_id).first()
     if not category:
@@ -79,7 +86,11 @@ def update_category(
 
 
 @router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_category(category_id: int, db: Session = Depends(get_db)):
+def delete_category(
+    category_id: int,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_admin),
+):
     category = db.query(Category).filter(Category.id == category_id).first()
     if not category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")

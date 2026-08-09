@@ -3,8 +3,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.dependencies.auth import get_current_admin
 from app.models.category import Category
 from app.models.subcategory import Subcategory
+from app.models.user import User
 from app.schemas.subcategory import (
     SubcategoryCreate,
     SubcategoryRead,
@@ -30,7 +32,11 @@ def list_subcategories(db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=SubcategoryRead, status_code=status.HTTP_201_CREATED)
-def create_subcategory(payload: SubcategoryCreate, db: Session = Depends(get_db)):
+def create_subcategory(
+    payload: SubcategoryCreate,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_admin),
+):
     get_category_or_404(payload.category_id, db)
 
     subcategory = Subcategory(
@@ -73,6 +79,7 @@ def update_subcategory(
     subcategory_id: int,
     payload: SubcategoryUpdate,
     db: Session = Depends(get_db),
+    _: User = Depends(get_current_admin),
 ):
     subcategory = (
         db.query(Subcategory).filter(Subcategory.id == subcategory_id).first()
@@ -110,7 +117,11 @@ def update_subcategory(
 
 
 @router.delete("/{subcategory_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_subcategory(subcategory_id: int, db: Session = Depends(get_db)):
+def delete_subcategory(
+    subcategory_id: int,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_admin),
+):
     subcategory = (
         db.query(Subcategory).filter(Subcategory.id == subcategory_id).first()
     )

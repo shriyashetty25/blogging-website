@@ -1,0 +1,148 @@
+.blog-editor {
+  border: 1px solid var(--rule);
+  background: #fff;
+}
+
+.blog-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.65rem;
+  border-bottom: 1px solid var(--rule);
+  background: #fafafa;
+}
+
+.blog-editor-toolbar button {
+  appearance: none;
+  border: 1px solid var(--rule);
+  background: #fff;
+  color: var(--ink);
+  padding: 0.4rem 0.55rem;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.blog-editor-toolbar button.active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+
+.blog-editor-toolbar button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.blog-editor-content .ProseMirror {
+  min-height: 280px;
+  padding: 1rem;
+  outline: none;
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.7;
+}
+
+.blog-editor-content .ProseMirror p.is-editor-empty:first-child::before {
+  color: #999;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.blog-editor-content .ProseMirror h2,
+.blog-content h2 {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 500;
+  margin: 1.4rem 0 0.7rem;
+}
+
+.blog-editor-content .ProseMirror h3,
+.blog-content h3 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 500;
+  margin: 1.2rem 0 0.55rem;
+}
+
+.blog-editor-content .ProseMirror blockquote,
+.blog-content blockquote {
+  margin: 1rem 0;
+  padding: 0.25rem 0 0.25rem 1rem;
+  border-left: 2px solid var(--ink);
+  color: #444;
+  font-style: italic;
+}
+
+.blog-editor-content .ProseMirror ul,
+.blog-editor-content .ProseMirror ol,
+.blog-content ul,
+.blog-content ol {
+  padding-left: 1.4rem;
+}
+
+.blog-editor-content .ProseMirror img,
+.blog-content img,
+.editor-image {
+  max-width: 100%;
+  height: auto;
+  margin: 1rem 0;
+}
+
+.blog-editor-content .ProseMirror iframe,
+.blog-content iframe,
+.editor-youtube {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  margin: 1rem 0;
+  border: 0;
+}
+
+.blog-editor-content .ProseMirror table,
+.blog-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.blog-editor-content .ProseMirror th,
+.blog-editor-content .ProseMirror td,
+.blog-content th,
+.blog-content td {
+  border: 1px solid var(--rule);
+  padding: 0.5rem 0.65rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.blog-editor-content .ProseMirror th,
+.blog-content th {
+  background: #f5f5f5;
+  font-weight: 500;
+}
+
+.blog-content {
+  max-width: 40rem;
+  font-size: 1.12rem;
+  font-weight: 300;
+  line-height: 1.8;
+}
+
+.blog-content .ProseMirror {
+  outline: none;
+}
+
+.blog-content a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}

@@ -3,6 +3,150 @@
   margin-bottom: 1.75rem;
 }
 
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-toolbar .admin-back {
+  margin-bottom: 0;
+}
+
+.admin-primary-link {
+  display: inline-block;
+  padding: 0.65rem 1rem;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.admin-filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-filter-tabs button {
+  appearance: none;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink);
+  padding: 0.55rem 0.85rem;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.admin-filter-tabs button.active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+
+.admin-actions a {
+  display: inline-block;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.admin-field-hint {
+  margin: -0.4rem 0 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 300;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.admin-editor-field {
+  margin-bottom: 1rem;
+}
+
+.admin-editor-label {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.image-upload-field {
+  margin-bottom: 1rem;
+}
+
+.image-upload-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 0.55rem;
+}
+
+.image-upload-preview {
+  display: block;
+  width: min(320px, 100%);
+  margin-top: 0.85rem;
+  object-fit: cover;
+}
+
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.25rem;
+}
+
+.media-card {
+  border: 1px solid var(--rule);
+  padding: 0.75rem;
+  background: #fff;
+}
+
+.media-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  margin-bottom: 0.65rem;
+}
+
+.media-card p {
+  margin: 0 0 0.35rem;
+}
+
+.status-draft {
+  color: #6a6a6a;
+}
+
+
+.status-published {
+  color: #1f5a2a;
+}
+
+.status-archived {
+  color: #7a1f1f;
+}
+
+
 .admin-alert {
   margin: 0 0 1.25rem;
   padding: 0.85rem 1rem;

@@ -1,9 +1,42 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { dummyBlogs } from '../data/dummyBlogs'
+import BlogList from '../components/BlogList'
+import { getPublishedBlogs } from '../services/blogsApi'
+import { getCategories } from '../services/categoriesApi'
+import { getSubcategories } from '../services/subcategoriesApi'
+import { toIdMap } from '../utils/lookupMaps'
 import './HomePage.css'
 
 function HomePage() {
-  const latestBlogs = dummyBlogs.slice(0, 3)
+  const [blogs, setBlogs] = useState([])
+  const [categoriesById, setCategoriesById] = useState({})
+  const [subcategoriesById, setSubcategoriesById] = useState({})
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true)
+      setError(null)
+
+      try {
+        const [blogData, categories, subcategories] = await Promise.all([
+          getPublishedBlogs(),
+          getCategories(),
+          getSubcategories(),
+        ])
+        setBlogs(blogData.slice(0, 3))
+        setCategoriesById(toIdMap(categories))
+        setSubcategoriesById(toIdMap(subcategories))
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    load()
+  }, [])
 
   return (
     <section className="home">
@@ -19,30 +52,15 @@ function HomePage() {
         <Link to="/blogs">View all</Link>
       </div>
 
-      <ul className="editorial-list">
-        {latestBlogs.map((blog) => (
-          <li key={blog.id}>
-            <Link to={`/blog/${blog.slug}`}>
-              <img
-                className="story-image"
-                src={blog.image}
-                alt=""
-                width={280}
-                height={140}
-              />
-            </Link>
-            <div className="story-copy">
-              <p className="meta">
-                {blog.category} / {blog.subcategory}
-              </p>
-              <Link className="story-title" to={`/blog/${blog.slug}`}>
-                {blog.title}
-              </Link>
-              <p className="excerpt">{blog.excerpt}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {loading && <p className="page-intro">Loading stories...</p>}
+      {error && <p className="page-intro">Unable to load stories. {error}</p>}
+      {!loading && !error && (
+        <BlogList
+          blogs={blogs}
+          categoriesById={categoriesById}
+          subcategoriesById={subcategoriesById}
+        />
+      )}
     </section>
   )
 }
