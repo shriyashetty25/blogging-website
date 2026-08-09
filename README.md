@@ -2,10 +2,11 @@
 
 A general-purpose personal blogging CMS built with React (Vite) and FastAPI.
 
-## Current phase: Phase 4 — Category Admin
+## Current phase: Phase 5 — Subcategories
 
-- React admin UI for categories at `/admin/categories`
-- Frontend calls FastAPI category APIs (no dummy category data)
+- Subcategory model linked to Category
+- Subcategory CRUD APIs
+- Admin UI at `/admin/subcategories` with category dropdown
 
 ## Requirements
 

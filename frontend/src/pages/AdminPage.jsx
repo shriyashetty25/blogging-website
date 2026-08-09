@@ -15,8 +15,8 @@ function AdminPage() {
           <p>View, add, edit, disable, and delete categories.</p>
         </li>
         <li>
-          <span>Subcategories</span>
-          <p>Coming in Phase 5</p>
+          <Link to="/admin/subcategories">Subcategories</Link>
+          <p>Attach subtopics to a parent category.</p>
         </li>
         <li>
           <span>Blogs</span>

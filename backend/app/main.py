@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
-from app.models import Category  # noqa: F401 - needed so create_all sees the model
-from app.routers import categories
+from app.models import Category, Subcategory  # noqa: F401
+from app.routers import categories, subcategories
 
 app = FastAPI(title="Personal Blogging Platform API")
 
@@ -22,6 +22,7 @@ app.add_middleware(
 Base.metadata.create_all(bind=engine)
 
 app.include_router(categories.router)
+app.include_router(subcategories.router)
 
 
 @app.get("/api/health")

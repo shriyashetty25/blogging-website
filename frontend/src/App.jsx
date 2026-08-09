@@ -5,6 +5,7 @@ import BlogsPage from './pages/BlogsPage'
 import BlogDetailsPage from './pages/BlogDetailsPage'
 import AdminPage from './pages/AdminPage'
 import CategoriesPage from './pages/admin/CategoriesPage'
+import SubcategoriesPage from './pages/admin/SubcategoriesPage'
 import './App.css'
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="blog/:slug" element={<BlogDetailsPage />} />
           <Route path="admin" element={<AdminPage />} />
           <Route path="admin/categories" element={<CategoriesPage />} />
+          <Route path="admin/subcategories" element={<SubcategoriesPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
