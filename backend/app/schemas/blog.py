@@ -13,6 +13,7 @@ class BlogCreate(BaseModel):
     excerpt: str | None = None
     featured_image: str | None = None
     featured_image_thumb: str | None = None
+    author: str | None = Field(default=None, max_length=120)
     content: str | None = None
     tag_names: list[str] = Field(default_factory=list)
     seo_title: str | None = Field(default=None, max_length=200)
@@ -29,6 +30,7 @@ class BlogUpdate(BaseModel):
     excerpt: str | None = None
     featured_image: str | None = None
     featured_image_thumb: str | None = None
+    author: str | None = Field(default=None, max_length=120)
     content: str | None = None
     tag_names: list[str] | None = None
     seo_title: str | None = Field(default=None, max_length=200)
@@ -50,6 +52,7 @@ class BlogListItem(BaseModel):
     excerpt: str | None
     featured_image: str | None
     featured_image_thumb: str | None = None
+    author: str | None = None
     tags: list[TagRead] = Field(default_factory=list)
     seo_title: str | None
     seo_description: str | None
@@ -70,6 +73,7 @@ class BlogRead(BaseModel):
     excerpt: str | None
     featured_image: str | None
     featured_image_thumb: str | None = None
+    author: str | None = None
     content: str | None
     tags: list[TagRead] = Field(default_factory=list)
     seo_title: str | None

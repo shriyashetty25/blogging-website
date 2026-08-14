@@ -25,6 +25,14 @@ function AdminPage() {
 
       <ul className="admin-nav-list">
         <li>
+          <Link to="/admin/seo">SEO settings</Link>
+          <p>Titles, descriptions, and IDs the owner pastes into Google.</p>
+        </li>
+        <li>
+          <Link to="/admin/analytics">Analytics</Link>
+          <p>Page views recorded here. Full traffic reports stay in Google Analytics.</p>
+        </li>
+        <li>
           <Link to="/admin/categories">Categories</Link>
           <p>View, add, edit, disable, and delete categories.</p>
         </li>

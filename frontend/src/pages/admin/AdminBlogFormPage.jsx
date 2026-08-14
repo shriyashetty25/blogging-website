@@ -15,6 +15,7 @@ const emptyForm = {
   subcategory_id: '',
   title: '',
   slug: '',
+  author: 'Editor',
   excerpt: '',
   featured_image: '',
   featured_image_thumb: '',
@@ -67,6 +68,7 @@ function AdminBlogFormPage() {
             subcategory_id: String(blog.subcategory_id),
             title: blog.title || '',
             slug: blog.slug || '',
+            author: blog.author || 'Editor',
             excerpt: blog.excerpt || '',
             featured_image: blog.featured_image || '',
             featured_image_thumb: blog.featured_image_thumb || '',
@@ -122,6 +124,7 @@ function AdminBlogFormPage() {
       subcategory_id: Number(form.subcategory_id),
       title: form.title.trim(),
       slug: form.slug.trim().toLowerCase(),
+      author: form.author.trim() || 'Editor',
       excerpt: form.excerpt.trim() || null,
       featured_image: form.featured_image.trim() || null,
       featured_image_thumb: form.featured_image_thumb.trim() || null,
@@ -181,6 +184,19 @@ function AdminBlogFormPage() {
             required
             maxLength={200}
             placeholder="How to Improve Cricket Batting"
+          />
+        </label>
+
+        <label>
+          Author
+          <input
+            type="text"
+            value={form.author}
+            onChange={(event) =>
+              setForm((current) => ({ ...current, author: event.target.value }))
+            }
+            maxLength={120}
+            placeholder="Editor"
           />
         </label>
 
@@ -292,36 +308,66 @@ function AdminBlogFormPage() {
           Comma-separated names. New tags are created automatically.
         </p>
 
-        <label>
-          SEO Title
-          <input
-            type="text"
-            value={form.seo_title}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                seo_title: event.target.value,
-              }))
-            }
-            maxLength={200}
-            placeholder="Optional search title"
-          />
-        </label>
+        <div className="seo-form-panel">
+          <h2>SEO for this post</h2>
+          <p className="admin-field-hint">
+            Used in the browser tab, search snippets, and link previews. The
+            owner still submits the sitemap in Search Console.
+          </p>
 
-        <label>
-          SEO Description
-          <textarea
-            value={form.seo_description}
-            onChange={(event) =>
-              setForm((current) => ({
-                ...current,
-                seo_description: event.target.value,
-              }))
-            }
-            rows={3}
-            placeholder="Optional search description"
-          />
-        </label>
+          <label>
+            SEO Title
+            <input
+              type="text"
+              value={form.seo_title}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  seo_title: event.target.value,
+                }))
+              }
+              maxLength={200}
+              placeholder={form.title || 'Optional search title'}
+            />
+          </label>
+          <p className="admin-field-hint">
+            Aim for about 50–60 characters. {(form.seo_title || '').length} / 60
+          </p>
+
+          <label>
+            SEO Description
+            <textarea
+              value={form.seo_description}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  seo_description: event.target.value,
+                }))
+              }
+              rows={3}
+              placeholder={form.excerpt || 'Optional search description'}
+            />
+          </label>
+          <p className="admin-field-hint">
+            Aim for about 150–160 characters.{' '}
+            {(form.seo_description || '').length} / 160
+          </p>
+
+          <div className="seo-preview" aria-label="Search result preview">
+            <p className="seo-preview-kicker">Search preview</p>
+            <p className="seo-preview-url">
+              /blog/{form.slug || 'your-post-slug'}
+            </p>
+            <p className="seo-preview-title">
+              {form.seo_title || form.title || 'Post title'}
+            </p>
+            <p className="seo-preview-desc">
+              {form.seo_description ||
+                form.excerpt ||
+                'Add an SEO description or excerpt.'}
+            </p>
+          </div>
+        </div>
 
         <label>
           Status

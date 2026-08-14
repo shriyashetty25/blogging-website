@@ -26,6 +26,7 @@ class Blog(Base):
     excerpt: Mapped[str | None] = mapped_column(Text, nullable=True)
     featured_image: Mapped[str | None] = mapped_column(String(500), nullable=True)
     featured_image_thumb: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    author: Mapped[str | None] = mapped_column(String(120), nullable=True)
     content: Mapped[str | None] = mapped_column(Text, nullable=True)
     seo_title: Mapped[str | None] = mapped_column(String(200), nullable=True)
     seo_description: Mapped[str | None] = mapped_column(Text, nullable=True)

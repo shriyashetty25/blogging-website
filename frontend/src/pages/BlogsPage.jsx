@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import BlogList from '../components/BlogList'
+import SeoHead from '../components/SeoHead'
 import { getPublishedBlogs } from '../services/blogsApi'
 import { getCategories } from '../services/categoriesApi'
 import { getSubcategories } from '../services/subcategoriesApi'
@@ -54,6 +55,15 @@ function BlogsPage() {
 
   return (
     <section className="page-shell">
+      <SeoHead
+        title={query ? `Search: ${query}` : 'All Stories'}
+        description={
+          query
+            ? `Published stories matching “${query}”.`
+            : 'Every published story on BlogSite.'
+        }
+        path={query ? `/blogs?q=${encodeURIComponent(query)}` : '/blogs'}
+      />
       <p className="page-kicker">The archive</p>
       <h1>{query ? 'Search results' : 'All Stories'}</h1>
       <p className="page-intro">

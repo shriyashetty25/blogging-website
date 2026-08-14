@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import BlogList from '../components/BlogList'
+import SeoHead from '../components/SeoHead'
 import { getPublishedBlogs } from '../services/blogsApi'
 import { getCategories } from '../services/categoriesApi'
 import { getSubcategories } from '../services/subcategoriesApi'
@@ -40,6 +41,11 @@ function HomePage() {
 
   return (
     <section className="home">
+      <SeoHead
+        title=""
+        description="A personal magazine for culture, focus, sport, and everyday life."
+        path="/"
+      />
       <header className="home-header">
         <h1 className="home-masthead">BlogSite</h1>
         <p className="home-tagline">

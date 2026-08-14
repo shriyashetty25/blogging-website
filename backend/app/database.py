@@ -39,6 +39,7 @@ def ensure_blog_columns():
         "ALTER TABLE blogs ADD COLUMN IF NOT EXISTS seo_title VARCHAR(200)",
         "ALTER TABLE blogs ADD COLUMN IF NOT EXISTS seo_description TEXT",
         "ALTER TABLE blogs ADD COLUMN IF NOT EXISTS featured_image_thumb VARCHAR(500)",
+        "ALTER TABLE blogs ADD COLUMN IF NOT EXISTS author VARCHAR(120)",
         "ALTER TABLE media ADD COLUMN IF NOT EXISTS thumb_filename VARCHAR(255)",
         "ALTER TABLE media ADD COLUMN IF NOT EXISTS thumb_url_path VARCHAR(300)",
     ]
@@ -46,6 +47,34 @@ def ensure_blog_columns():
     with engine.begin() as connection:
         for statement in statements:
             connection.execute(text(statement))
+        connection.execute(
+            text(
+                "UPDATE blogs SET author = 'Editor' "
+                "WHERE author IS NULL OR TRIM(author) = ''"
+            )
+        )
+        for statement in [
+            "ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS author_name VARCHAR(120)",
+            "ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS author_role VARCHAR(80)",
+            "ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS author_bio TEXT",
+            "ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS author_image VARCHAR(500)",
+        ]:
+            connection.execute(text(statement))
+        connection.execute(
+            text(
+                """
+                UPDATE site_settings
+                SET
+                  author_name = COALESCE(NULLIF(TRIM(author_name), ''), 'Editor'),
+                  author_role = COALESCE(NULLIF(TRIM(author_role), ''), 'Writer'),
+                  author_bio = COALESCE(
+                    NULLIF(TRIM(author_bio), ''),
+                    'Writes for BlogSite on culture, focus, sport, and everyday life.'
+                  )
+                WHERE id = 1
+                """
+            )
+        )
 
 
 def backfill_media_thumbnails():

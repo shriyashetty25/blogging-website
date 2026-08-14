@@ -5,14 +5,35 @@ from fastapi.staticfiles import StaticFiles
 from app.auth.seed import seed_admin_user
 from app.database import (
     Base,
+    SessionLocal,
     backfill_media_thumbnails,
     engine,
     ensure_blog_columns,
     migrate_legacy_blog_tags,
 )
 from app.media_storage import UPLOAD_DIR, ensure_upload_dir
-from app.models import Blog, Category, Media, Subcategory, Tag, User  # noqa: F401
-from app.routers import auth, blogs, categories, media, subcategories, tags
+from app.models import (  # noqa: F401
+    Blog,
+    Category,
+    Media,
+    PageView,
+    SiteSettings,
+    Subcategory,
+    Tag,
+    User,
+)
+from app.routers import (
+    analytics,
+    auth,
+    blogs,
+    categories,
+    media,
+    seo_files,
+    settings,
+    subcategories,
+    tags,
+)
+from app.site_settings import get_or_create_settings
 
 app = FastAPI(title="Personal Blogging Platform API")
 
@@ -45,12 +66,21 @@ seed_admin_user()
 ensure_upload_dir()
 backfill_media_thumbnails()
 
+_settings_db = SessionLocal()
+try:
+    get_or_create_settings(_settings_db)
+finally:
+    _settings_db.close()
+
 app.include_router(auth.router)
 app.include_router(categories.router)
 app.include_router(subcategories.router)
 app.include_router(blogs.router)
 app.include_router(tags.router)
 app.include_router(media.router)
+app.include_router(settings.router)
+app.include_router(analytics.router)
+app.include_router(seo_files.router)
 
 # Serve uploaded images from local disk (not from PostgreSQL).
 app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")

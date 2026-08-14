@@ -21,6 +21,10 @@ export function getPublishedBlogs(params = {}) {
   return getBlogs({ status: 'PUBLISHED', ...params })
 }
 
+export function getPopularBlogs(limit = 5) {
+  return request(`/api/blogs/popular?limit=${limit}`)
+}
+
 export function getBlog(id) {
   return request(`/api/blogs/${id}`)
 }

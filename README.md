@@ -2,7 +2,13 @@
 
 A general-purpose personal blogging CMS built with React (Vite) and FastAPI.
 
-## Current phase: Image performance (after Phase 12)
+## Current phase: Phase 14 — Analytics (SEO form included)
+
+SEO is owner-driven. Admin → **SEO settings** stores titles, descriptions, site URL, and paste-in Google IDs. The app applies meta tags and serves `/sitemap.xml` and `/robots.txt`; the owner connects Search Console and Analytics.
+
+Blog view counts are stored in `page_views`. Full visitor reports (countries, devices, sources) come from Google Analytics after a Measurement ID is pasted.
+
+Default local admin (from `.env`):
 
 - Local disk image storage in `backend/uploads/`
 - Protected upload API: `POST /api/media/upload`
@@ -106,6 +112,25 @@ Example create body:
 
 Blog `status` accepts `DRAFT`, `PUBLISHED`, or `ARCHIVED`.
 Publishing a blog auto-sets `published_at` if it is empty.
+
+### SEO / settings
+
+```text
+GET    /api/settings
+PUT    /api/settings          (admin)
+GET    /sitemap.xml
+GET    /robots.txt
+```
+
+### Analytics
+
+```text
+POST   /api/analytics/views
+GET    /api/analytics/overview   (admin)
+```
+
+Page views are stored in PostgreSQL. Paste a Google Analytics Measurement ID in Admin → SEO settings to load gtag.js. Search Console, countries, and devices stay in Google — this app does not log in for you.
+
 
 ## Project structure (Phase 3)
 

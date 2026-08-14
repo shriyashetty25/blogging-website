@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import BlogList from '../components/BlogList'
+import SeoHead from '../components/SeoHead'
 import { getPublishedBlogs } from '../services/blogsApi'
 import { getCategories } from '../services/categoriesApi'
 import { getSubcategories } from '../services/subcategoriesApi'
@@ -91,6 +92,14 @@ function SubcategoryPage() {
 
   return (
     <section className="page-shell">
+      <SeoHead
+        title={`${subcategory.name} — ${category.name}`}
+        description={
+          subcategory.description ||
+          `Published stories in ${category.name} / ${subcategory.name}.`
+        }
+        path={`/${category.slug}/${subcategory.slug}`}
+      />
       <p className="page-kicker">
         <Link to={`/${category.slug}`}>{category.name}</Link>
         {' / Subcategory'}

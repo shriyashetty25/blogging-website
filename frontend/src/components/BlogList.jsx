@@ -57,6 +57,7 @@ function BlogList({
                   subcategoryName
                 )}
                 {blog.published_at ? ` · ${formatDate(blog.published_at)}` : ''}
+                {blog.author ? ` · ${blog.author}` : ''}
               </p>
               <Link className="story-title" to={`/blog/${blog.slug}`}>
                 {blog.title}

@@ -207,6 +207,22 @@
   text-transform: none;
 }
 
+.admin-form input[type='password'] {
+  color: #0a0a0a;
+  -webkit-text-fill-color: #0a0a0a;
+  caret-color: #0a0a0a;
+  font-weight: 500;
+}
+
+.admin-form input[type='password']:-webkit-autofill,
+.admin-form input[type='password']:-webkit-autofill:hover,
+.admin-form input[type='password']:-webkit-autofill:focus {
+  -webkit-text-fill-color: #0a0a0a;
+  caret-color: #0a0a0a;
+  box-shadow: 0 0 0 1000px #fff inset;
+  transition: background-color 9999s ease-out;
+}
+
 .admin-form input:focus,
 .admin-form textarea:focus,
 .admin-form select:focus {
@@ -310,6 +326,86 @@
 
 .status-disabled {
   color: #7a1f1f;
+}
+
+.seo-form-panel {
+  margin: 1.5rem 0 2rem;
+  padding: 1.25rem 0 0.25rem;
+  border-top: 1px solid var(--ink);
+}
+
+.seo-form-panel h2 {
+  margin-bottom: 0.5rem;
+}
+
+.seo-preview {
+  margin: 0 0 1.75rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--rule);
+  background: #fff;
+  max-width: 40rem;
+}
+
+.seo-preview-kicker {
+  margin: 0 0 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.seo-preview-url {
+  margin: 0;
+  color: #1f5a2a;
+  font-size: 0.85rem;
+}
+
+.seo-preview-title {
+  margin: 0.2rem 0 0.25rem;
+  color: #1a0dab;
+  font-size: 1.2rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.seo-preview-desc {
+  margin: 0;
+  color: #4d5156;
+  font-weight: 300;
+}
+
+.analytics-stats {
+  list-style: none;
+  margin: 0 0 2.5rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.analytics-stats li {
+  border: 1px solid var(--rule);
+  padding: 1rem 1.1rem;
+  background: #fff;
+}
+
+.analytics-stats strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.analytics-stats span {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 @media (max-width: 760px) {

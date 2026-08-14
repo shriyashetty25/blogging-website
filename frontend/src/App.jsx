@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { SettingsProvider } from './context/SettingsContext'
 import ProtectedRoute from './components/ProtectedRoute'
+import GoogleAnalytics from './components/GoogleAnalytics'
+import PageViewTracker from './components/PageViewTracker'
 import MainLayout from './layouts/MainLayout'
 import HomePage from './pages/HomePage'
 import BlogsPage from './pages/BlogsPage'
@@ -15,13 +18,18 @@ import AdminBlogsPage from './pages/admin/AdminBlogsPage'
 import AdminBlogFormPage from './pages/admin/AdminBlogFormPage'
 import TagsPage from './pages/admin/TagsPage'
 import MediaPage from './pages/admin/MediaPage'
+import SeoSettingsPage from './pages/admin/SeoSettingsPage'
+import AnalyticsPage from './pages/admin/AnalyticsPage'
 import './App.css'
 
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
+      <SettingsProvider>
+        <BrowserRouter>
+          <GoogleAnalytics />
+          <PageViewTracker />
+          <Routes>
           <Route path="/" element={<MainLayout />}>
             <Route index element={<HomePage />} />
             <Route path="blogs" element={<BlogsPage />} />
@@ -33,6 +41,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <AdminPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="admin/seo"
+              element={
+                <ProtectedRoute>
+                  <SeoSettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="admin/analytics"
+              element={
+                <ProtectedRoute>
+                  <AnalyticsPage />
                 </ProtectedRoute>
               }
             />
@@ -101,7 +125,8 @@ function App() {
             />
           </Route>
         </Routes>
-      </BrowserRouter>
+        </BrowserRouter>
+      </SettingsProvider>
     </AuthProvider>
   )
 }

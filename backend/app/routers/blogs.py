@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import or_
+from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -9,6 +9,7 @@ from app.database import get_db
 from app.dependencies.auth import get_current_admin
 from app.models.blog import Blog
 from app.models.category import Category
+from app.models.page_view import PageView
 from app.models.subcategory import Subcategory
 from app.models.tag import Tag
 from app.models.user import User
@@ -120,6 +121,19 @@ def list_blogs(
     return query.order_by(Blog.id.desc()).all()
 
 
+@router.get("/popular", response_model=list[BlogListItem])
+def popular_blogs(db: Session = Depends(get_db), limit: int = Query(default=5, ge=1, le=12)):
+    return (
+        db.query(Blog)
+        .outerjoin(PageView, PageView.blog_id == Blog.id)
+        .filter(Blog.status == "PUBLISHED")
+        .group_by(Blog.id)
+        .order_by(func.count(PageView.id).desc(), Blog.id.desc())
+        .limit(limit)
+        .all()
+    )
+
+
 @router.get("/by-slug/{slug}", response_model=BlogRead)
 def get_blog_by_slug(slug: str, db: Session = Depends(get_db)):
     blog = db.query(Blog).filter(Blog.slug == slug).first()
@@ -151,6 +165,7 @@ def create_blog(
         excerpt=payload.excerpt,
         featured_image=payload.featured_image,
         featured_image_thumb=payload.featured_image_thumb,
+        author=(payload.author.strip() if payload.author else None) or "Editor",
         content=payload.content,
         seo_title=payload.seo_title,
         seo_description=payload.seo_description,
@@ -216,6 +231,8 @@ def update_blog(
         update_data["title"] = update_data["title"].strip()
     if "slug" in update_data and update_data["slug"] is not None:
         update_data["slug"] = update_data["slug"].strip().lower()
+    if "author" in update_data and update_data["author"] is not None:
+        update_data["author"] = update_data["author"].strip() or "Editor"
 
     next_status = update_data.get("status", blog.status)
     if "status" in update_data or "published_at" in update_data:
