@@ -2,7 +2,11 @@
 
 A general-purpose personal blogging CMS built with React (Vite) and FastAPI.
 
-## Current phase: Phase 14 — Analytics (SEO form included)
+## Current phase: Phase 15 — Admin dashboard
+
+Admin `/admin` is a live dashboard: blog counts, views, a 14-day traffic chart, popular posts, and recent posts.
+
+A blog can be marked **Top 1**, **Top 2**, or **Top 3**. That post’s category appears in the public navbar in that order.
 
 SEO is owner-driven. Admin → **SEO settings** stores titles, descriptions, site URL, and paste-in Google IDs. The app applies meta tags and serves `/sitemap.xml` and `/robots.txt`; the owner connects Search Console and Analytics.
 
@@ -90,6 +94,7 @@ Open: http://localhost:5173
 
 ```text
 GET    /api/blogs
+GET    /api/blogs/navbar
 POST   /api/blogs
 GET    /api/blogs/{id}
 PUT    /api/blogs/{id}
@@ -126,7 +131,8 @@ GET    /robots.txt
 
 ```text
 POST   /api/analytics/views
-GET    /api/analytics/overview   (admin)
+GET    /api/analytics/overview    (admin)
+GET    /api/analytics/dashboard   (admin)
 ```
 
 Page views are stored in PostgreSQL. Paste a Google Analytics Measurement ID in Admin → SEO settings to load gtag.js. Search Console, countries, and devices stay in Google — this app does not log in for you.

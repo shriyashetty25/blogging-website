@@ -30,6 +30,7 @@ class Blog(Base):
     content: Mapped[str | None] = mapped_column(Text, nullable=True)
     seo_title: Mapped[str | None] = mapped_column(String(200), nullable=True)
     seo_description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    navbar_rank: Mapped[int | None] = mapped_column(nullable=True, index=True)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="DRAFT")
     published_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),

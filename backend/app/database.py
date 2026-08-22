@@ -40,6 +40,7 @@ def ensure_blog_columns():
         "ALTER TABLE blogs ADD COLUMN IF NOT EXISTS seo_description TEXT",
         "ALTER TABLE blogs ADD COLUMN IF NOT EXISTS featured_image_thumb VARCHAR(500)",
         "ALTER TABLE blogs ADD COLUMN IF NOT EXISTS author VARCHAR(120)",
+        "ALTER TABLE blogs ADD COLUMN IF NOT EXISTS navbar_rank INTEGER",
         "ALTER TABLE media ADD COLUMN IF NOT EXISTS thumb_filename VARCHAR(255)",
         "ALTER TABLE media ADD COLUMN IF NOT EXISTS thumb_url_path VARCHAR(300)",
     ]
@@ -155,6 +156,39 @@ def migrate_legacy_blog_tags():
 
             blog.tags = tag_objects
 
+        db.commit()
+    finally:
+        db.close()
+
+
+def seed_navbar_ranks():
+    """If no navbar slots are set, pick three published posts from different categories."""
+    from app.models.blog import Blog
+    from app.models.category import Category
+
+    db = SessionLocal()
+    try:
+        already_ranked = db.query(Blog).filter(Blog.navbar_rank.isnot(None)).count()
+        if already_ranked:
+            return
+
+        published = (
+            db.query(Blog)
+            .join(Category, Category.id == Blog.category_id)
+            .filter(Blog.status == "PUBLISHED", Category.status == "active")
+            .order_by(Blog.published_at.desc().nullslast(), Blog.id.desc())
+            .all()
+        )
+        seen_categories = set()
+        rank = 1
+        for blog in published:
+            if blog.category_id in seen_categories:
+                continue
+            blog.navbar_rank = rank
+            seen_categories.add(blog.category_id)
+            rank += 1
+            if rank > 3:
+                break
         db.commit()
     finally:
         db.close()

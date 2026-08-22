@@ -28,6 +28,10 @@ export function getAnalyticsOverview() {
   return request('/api/analytics/overview')
 }
 
+export function getDashboardOverview() {
+  return request('/api/analytics/dashboard')
+}
+
 export function recordView({ path, blog_id }) {
   const key = viewKey(path, blog_id)
   if (wasJustRecorded(key)) {

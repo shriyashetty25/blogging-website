@@ -1,10 +1,35 @@
-import { useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { getNavbarCategories } from '../services/blogsApi'
 import './Navbar.css'
 
 function Navbar() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [query, setQuery] = useState('')
+  const [topCategories, setTopCategories] = useState([])
+
+  useEffect(() => {
+    let ignore = false
+
+    async function loadNavbar() {
+      try {
+        const items = await getNavbarCategories()
+        if (!ignore) {
+          setTopCategories(items)
+        }
+      } catch {
+        if (!ignore) {
+          setTopCategories([])
+        }
+      }
+    }
+
+    loadNavbar()
+    return () => {
+      ignore = true
+    }
+  }, [location.pathname])
 
   function handleSearch(event) {
     event.preventDefault()
@@ -24,6 +49,11 @@ function Navbar() {
             Home
           </NavLink>
           <NavLink to="/blogs">Blogs</NavLink>
+          {topCategories.map((category) => (
+            <NavLink key={category.slug} to={`/${category.slug}`}>
+              {category.name}
+            </NavLink>
+          ))}
           <NavLink to="/admin">Admin</NavLink>
         </nav>
 

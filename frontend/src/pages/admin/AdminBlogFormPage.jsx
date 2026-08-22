@@ -23,6 +23,7 @@ const emptyForm = {
   tags: '',
   seo_title: '',
   seo_description: '',
+  navbar_rank: '',
   status: 'DRAFT',
 }
 
@@ -47,6 +48,13 @@ function AdminBlogFormPage() {
       (item) => String(item.category_id) === String(form.category_id),
     )
   }, [form.category_id, subcategories])
+
+  const selectedCategory = useMemo(
+    () =>
+      categories.find((item) => String(item.id) === String(form.category_id)) ||
+      null,
+    [categories, form.category_id],
+  )
 
   useEffect(() => {
     async function load() {
@@ -76,6 +84,7 @@ function AdminBlogFormPage() {
             tags: tagsToInputValue(blog.tags),
             seo_title: blog.seo_title || '',
             seo_description: blog.seo_description || '',
+            navbar_rank: blog.navbar_rank ? String(blog.navbar_rank) : '',
             status: blog.status || 'DRAFT',
           })
           setSlugManual(true)
@@ -134,6 +143,7 @@ function AdminBlogFormPage() {
       tag_names: inputValueToTagNames(form.tags),
       seo_title: form.seo_title.trim() || null,
       seo_description: form.seo_description.trim() || null,
+      navbar_rank: form.navbar_rank ? Number(form.navbar_rank) : null,
       status: form.status,
     }
 
@@ -368,6 +378,29 @@ function AdminBlogFormPage() {
             </p>
           </div>
         </div>
+
+        <label>
+          Navbar slot
+          <select
+            value={form.navbar_rank}
+            onChange={(event) =>
+              setForm((current) => ({
+                ...current,
+                navbar_rank: event.target.value,
+              }))
+            }
+          >
+            <option value="">None</option>
+            <option value="1">Top 1</option>
+            <option value="2">Top 2</option>
+            <option value="3">Top 3</option>
+          </select>
+        </label>
+        <p className="admin-field-hint">
+          {form.navbar_rank && selectedCategory
+            ? `${selectedCategory.name} will appear in the public navbar as Top ${form.navbar_rank}. Only one post can occupy each slot.`
+            : 'Optional. Puts this post’s category in the public navbar as Top 1, 2, or 3.'}
+        </p>
 
         <label>
           Status

@@ -25,6 +25,10 @@ export function getPopularBlogs(limit = 5) {
   return request(`/api/blogs/popular?limit=${limit}`)
 }
 
+export function getNavbarCategories() {
+  return request('/api/blogs/navbar')
+}
+
 export function getBlog(id) {
   return request(`/api/blogs/${id}`)
 }

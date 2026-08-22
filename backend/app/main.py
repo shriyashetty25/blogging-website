@@ -10,6 +10,7 @@ from app.database import (
     engine,
     ensure_blog_columns,
     migrate_legacy_blog_tags,
+    seed_navbar_ranks,
 )
 from app.media_storage import UPLOAD_DIR, ensure_upload_dir
 from app.models import (  # noqa: F401
@@ -62,6 +63,7 @@ async def cache_uploaded_media(request, call_next):
 Base.metadata.create_all(bind=engine)
 ensure_blog_columns()
 migrate_legacy_blog_tags()
+seed_navbar_ranks()
 seed_admin_user()
 ensure_upload_dir()
 backfill_media_thumbnails()

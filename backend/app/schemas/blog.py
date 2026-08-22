@@ -18,6 +18,7 @@ class BlogCreate(BaseModel):
     tag_names: list[str] = Field(default_factory=list)
     seo_title: str | None = Field(default=None, max_length=200)
     seo_description: str | None = None
+    navbar_rank: int | None = Field(default=None, ge=1, le=3)
     status: str = Field(default="DRAFT", pattern="^(DRAFT|PUBLISHED|ARCHIVED)$")
     published_at: datetime | None = None
 
@@ -35,6 +36,7 @@ class BlogUpdate(BaseModel):
     tag_names: list[str] | None = None
     seo_title: str | None = Field(default=None, max_length=200)
     seo_description: str | None = None
+    navbar_rank: int | None = Field(default=None, ge=1, le=3)
     status: str | None = Field(default=None, pattern="^(DRAFT|PUBLISHED|ARCHIVED)$")
     published_at: datetime | None = None
 
@@ -56,10 +58,17 @@ class BlogListItem(BaseModel):
     tags: list[TagRead] = Field(default_factory=list)
     seo_title: str | None
     seo_description: str | None
+    navbar_rank: int | None = None
     status: str
     published_at: datetime | None
     created_at: datetime
     updated_at: datetime
+
+
+class NavbarCategory(BaseModel):
+    rank: int
+    name: str
+    slug: str
 
 
 class BlogRead(BaseModel):
@@ -78,6 +87,7 @@ class BlogRead(BaseModel):
     tags: list[TagRead] = Field(default_factory=list)
     seo_title: str | None
     seo_description: str | None
+    navbar_rank: int | None = None
     status: str
     published_at: datetime | None
     created_at: datetime

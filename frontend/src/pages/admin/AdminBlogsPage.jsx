@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { deleteBlog, getBlogs } from '../../services/blogsApi'
 import { getCategories } from '../../services/categoriesApi'
 import { getSubcategories } from '../../services/subcategoriesApi'
@@ -13,10 +13,16 @@ const FILTERS = [
 ]
 
 function AdminBlogsPage() {
+  const [searchParams] = useSearchParams()
+  const statusFromUrl = searchParams.get('status')
+  const initialFilter = FILTERS.some((item) => item.key === statusFromUrl)
+    ? statusFromUrl
+    : 'all'
+
   const [blogs, setBlogs] = useState([])
   const [categories, setCategories] = useState([])
   const [subcategories, setSubcategories] = useState([])
-  const [filter, setFilter] = useState('all')
+  const [filter, setFilter] = useState(initialFilter)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [message, setMessage] = useState(null)
@@ -52,6 +58,10 @@ function AdminBlogsPage() {
   useEffect(() => {
     loadData()
   }, [])
+
+  useEffect(() => {
+    setFilter(initialFilter)
+  }, [initialFilter])
 
   const visibleBlogs = useMemo(() => {
     if (filter === 'all') {
@@ -128,6 +138,7 @@ function AdminBlogsPage() {
               <tr>
                 <th>Title</th>
                 <th>Category</th>
+                <th>Navbar</th>
                 <th>Status</th>
                 <th>Actions</th>
               </tr>
@@ -146,6 +157,7 @@ function AdminBlogsPage() {
                     {getCategoryName(blog.category_id)} /{' '}
                     {getSubcategoryName(blog.subcategory_id)}
                   </td>
+                  <td>{blog.navbar_rank ? `Top ${blog.navbar_rank}` : '—'}</td>
                   <td>
                     <span className={`status-pill status-${blog.status.toLowerCase()}`}>
                       {blog.status}

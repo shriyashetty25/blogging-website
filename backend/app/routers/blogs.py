@@ -13,7 +13,13 @@ from app.models.page_view import PageView
 from app.models.subcategory import Subcategory
 from app.models.tag import Tag
 from app.models.user import User
-from app.schemas.blog import BlogCreate, BlogListItem, BlogRead, BlogUpdate
+from app.schemas.blog import (
+    BlogCreate,
+    BlogListItem,
+    BlogRead,
+    BlogUpdate,
+    NavbarCategory,
+)
 from app.utils.slugify import slugify
 
 router = APIRouter(prefix="/api/blogs", tags=["blogs"])
@@ -83,6 +89,23 @@ def sync_blog_tags(blog: Blog, tag_names: list[str], db: Session) -> None:
     blog.tags = tags
 
 
+def assign_navbar_rank(blog: Blog, rank: int | None, db: Session) -> None:
+    if rank is None:
+        blog.navbar_rank = None
+        return
+    if rank not in (1, 2, 3):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Navbar rank must be 1, 2, or 3",
+        )
+    (
+        db.query(Blog)
+        .filter(Blog.navbar_rank == rank, Blog.id != blog.id)
+        .update({"navbar_rank": None})
+    )
+    blog.navbar_rank = rank
+
+
 @router.get("", response_model=list[BlogListItem])
 def list_blogs(
     db: Session = Depends(get_db),
@@ -119,6 +142,36 @@ def list_blogs(
         )
 
     return query.order_by(Blog.id.desc()).all()
+
+
+@router.get("/navbar", response_model=list[NavbarCategory])
+def navbar_categories(db: Session = Depends(get_db)):
+    blogs = (
+        db.query(Blog)
+        .join(Category, Category.id == Blog.category_id)
+        .filter(
+            Blog.navbar_rank.in_((1, 2, 3)),
+            Blog.status == "PUBLISHED",
+            Category.status == "active",
+        )
+        .order_by(Blog.navbar_rank)
+        .all()
+    )
+
+    seen_slugs = set()
+    items = []
+    for blog in blogs:
+        if blog.category.slug in seen_slugs:
+            continue
+        seen_slugs.add(blog.category.slug)
+        items.append(
+            NavbarCategory(
+                rank=blog.navbar_rank,
+                name=blog.category.name,
+                slug=blog.category.slug,
+            )
+        )
+    return items
 
 
 @router.get("/popular", response_model=list[BlogListItem])
@@ -174,6 +227,7 @@ def create_blog(
     )
     db.add(blog)
     db.flush()
+    assign_navbar_rank(blog, payload.navbar_rank, db)
     sync_blog_tags(blog, payload.tag_names, db)
 
     try:
@@ -216,6 +270,7 @@ def update_blog(
 
     update_data = payload.model_dump(exclude_unset=True)
     tag_names = update_data.pop("tag_names", None)
+    navbar_rank = update_data.pop("navbar_rank", ...)
 
     next_category_id = update_data.get("category_id", blog.category_id)
     next_subcategory_id = update_data.get("subcategory_id", blog.subcategory_id)
@@ -244,6 +299,9 @@ def update_blog(
 
     for field, value in update_data.items():
         setattr(blog, field, value)
+
+    if navbar_rank is not ...:
+        assign_navbar_rank(blog, navbar_rank, db)
 
     if tag_names is not None:
         sync_blog_tags(blog, tag_names, db)
