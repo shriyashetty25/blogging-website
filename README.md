@@ -38,6 +38,19 @@ password: admin123
 - Python 3.12+
 - PostgreSQL (local Docker container used for development)
 
+## Quick start
+
+**Windows, no technical knowledge needed:** double-click `start.bat`. See [START-HERE.md](START-HERE.md).
+
+**Any OS, from a terminal:**
+
+```bash
+python run.py      # Windows
+python3 run.py     # macOS / Linux
+```
+
+This sets up and starts the database, backend, and frontend together. See [RUNNING.md](RUNNING.md) for details and options.
+
 ## Database (development)
 
 If the Postgres container is not running:
