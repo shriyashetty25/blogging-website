@@ -36,7 +36,8 @@ password: admin123
 - Node.js 18+
 - npm
 - Python 3.12+
-- PostgreSQL (local Docker container used for development)
+
+No database server is needed: data is stored in a local SQLite file (`backend/blog.db`).
 
 ## Quick start
 
@@ -49,22 +50,11 @@ python run.py      # Windows
 python3 run.py     # macOS / Linux
 ```
 
-This sets up and starts the database, backend, and frontend together. See [RUNNING.md](RUNNING.md) for details and options.
+This sets up and starts the backend and frontend together. See [RUNNING.md](RUNNING.md) for details and options.
 
-## Database (development)
+## Database
 
-If the Postgres container is not running:
-
-```bash
-docker start blog-postgres
-# or create it once:
-docker run -d --name blog-postgres \
-  -e POSTGRES_USER=blog_user \
-  -e POSTGRES_PASSWORD=blog_pass \
-  -e POSTGRES_DB=blog_db \
-  -p 5433:5432 \
-  postgres:16
-```
+By default the backend uses SQLite at `backend/blog.db`, created automatically on first start. To use PostgreSQL instead, set `DATABASE_URL` in `backend/.env` (see `.env.example`).
 
 Backend env file:
 

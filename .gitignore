@@ -11,6 +11,10 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 
+# Local SQLite database
+backend/*.db
+backend/*.db-journal
+
 # Local uploaded media (keep the folder, ignore files)
 backend/uploads/*
 !backend/uploads/.gitkeep

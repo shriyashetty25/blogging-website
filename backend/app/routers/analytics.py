@@ -135,7 +135,10 @@ def analytics_dashboard(
             query = query.filter(Blog.status == status_value)
         return int(query.scalar() or 0)
 
-    day_column = cast(PageView.viewed_at, Date)
+    if db.bind.dialect.name == "sqlite":
+        day_column = func.date(PageView.viewed_at)
+    else:
+        day_column = cast(PageView.viewed_at, Date)
     traffic_rows = (
         db.query(day_column.label("day"), func.count(PageView.id))
         .filter(PageView.viewed_at >= chart_start)
@@ -145,6 +148,8 @@ def analytics_dashboard(
     def as_date(value) -> date:
         if isinstance(value, datetime):
             return value.date()
+        if isinstance(value, str):
+            return date.fromisoformat(value)
         return value
 
     views_by_day = {as_date(row.day): int(row[1]) for row in traffic_rows}

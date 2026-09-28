@@ -25,9 +25,6 @@ if errorlevel 1 (
 where npm >nul 2>nul
 if errorlevel 1 goto :missing_node
 
-call :ensure_docker
-if errorlevel 1 goto :end
-
 echo.
 echo The website will open in your browser in a moment.
 echo Keep this window open while you use the website. Close it to stop.
@@ -60,36 +57,6 @@ exit /b
 :refresh_path
 for /f "usebackq delims=" %%p in (`powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [Environment]::GetEnvironmentVariable('Path','User')"`) do set "PATH=%%p"
 exit /b
-
-
-:ensure_docker
-where docker >nul 2>nul
-if errorlevel 1 (
-    call :install Docker.DockerDesktop "Docker Desktop"
-    call :refresh_path
-)
-where docker >nul 2>nul
-if errorlevel 1 goto :restart_needed
-
-docker info >nul 2>nul
-if not errorlevel 1 exit /b 0
-
-if exist "%ProgramFiles%\Docker\Docker\Docker Desktop.exe" start "" "%ProgramFiles%\Docker\Docker\Docker Desktop.exe"
-echo Waiting for Docker to start. If Docker asks you to accept its terms, click Accept.
-for /l %%i in (1,1,90) do (
-    docker info >nul 2>nul && exit /b 0
-    timeout /t 2 /nobreak >nul
-)
-goto :restart_needed
-
-
-:restart_needed
-echo.
-echo Docker is not ready yet. Please restart your computer,
-echo then double-click start.bat again.
-echo.
-pause
-exit /b 1
 
 
 :missing_python

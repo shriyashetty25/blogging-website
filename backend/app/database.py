@@ -1,17 +1,32 @@
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+BACKEND_DIR = Path(__file__).resolve().parent.parent
+DEFAULT_SQLITE_URL = f"sqlite:///{(BACKEND_DIR / 'blog.db').as_posix()}"
 
-if not DATABASE_URL:
-    raise RuntimeError("DATABASE_URL is not set. Copy .env.example to .env.")
+DATABASE_URL = os.getenv("DATABASE_URL") or DEFAULT_SQLITE_URL
+IS_SQLITE = DATABASE_URL.startswith("sqlite")
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False} if IS_SQLITE else {},
+)
+
+if IS_SQLITE:
+
+    @event.listens_for(engine, "connect")
+    def _enable_sqlite_foreign_keys(dbapi_connection, _):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
+
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -33,34 +48,38 @@ def ensure_blog_columns():
     Simple learning-friendly migration.
     create_all() does not add new columns to existing tables, so we add them here.
     """
-    statements = [
-        "ALTER TABLE blogs ADD COLUMN IF NOT EXISTS content TEXT",
-        "ALTER TABLE blogs ADD COLUMN IF NOT EXISTS tags VARCHAR(500)",
-        "ALTER TABLE blogs ADD COLUMN IF NOT EXISTS seo_title VARCHAR(200)",
-        "ALTER TABLE blogs ADD COLUMN IF NOT EXISTS seo_description TEXT",
-        "ALTER TABLE blogs ADD COLUMN IF NOT EXISTS featured_image_thumb VARCHAR(500)",
-        "ALTER TABLE blogs ADD COLUMN IF NOT EXISTS author VARCHAR(120)",
-        "ALTER TABLE blogs ADD COLUMN IF NOT EXISTS navbar_rank INTEGER",
-        "ALTER TABLE media ADD COLUMN IF NOT EXISTS thumb_filename VARCHAR(255)",
-        "ALTER TABLE media ADD COLUMN IF NOT EXISTS thumb_url_path VARCHAR(300)",
+    columns = [
+        ("blogs", "content", "TEXT"),
+        ("blogs", "tags", "VARCHAR(500)"),
+        ("blogs", "seo_title", "VARCHAR(200)"),
+        ("blogs", "seo_description", "TEXT"),
+        ("blogs", "featured_image_thumb", "VARCHAR(500)"),
+        ("blogs", "author", "VARCHAR(120)"),
+        ("blogs", "navbar_rank", "INTEGER"),
+        ("media", "thumb_filename", "VARCHAR(255)"),
+        ("media", "thumb_url_path", "VARCHAR(300)"),
+        ("site_settings", "author_name", "VARCHAR(120)"),
+        ("site_settings", "author_role", "VARCHAR(80)"),
+        ("site_settings", "author_bio", "TEXT"),
+        ("site_settings", "author_image", "VARCHAR(500)"),
     ]
 
     with engine.begin() as connection:
-        for statement in statements:
-            connection.execute(text(statement))
+        inspector = inspect(connection)
+        existing = {}
+        for table, column, column_type in columns:
+            if table not in existing:
+                existing[table] = {c["name"] for c in inspector.get_columns(table)}
+            if column not in existing[table]:
+                connection.execute(
+                    text(f"ALTER TABLE {table} ADD COLUMN {column} {column_type}")
+                )
         connection.execute(
             text(
                 "UPDATE blogs SET author = 'Editor' "
                 "WHERE author IS NULL OR TRIM(author) = ''"
             )
         )
-        for statement in [
-            "ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS author_name VARCHAR(120)",
-            "ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS author_role VARCHAR(80)",
-            "ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS author_bio TEXT",
-            "ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS author_image VARCHAR(500)",
-        ]:
-            connection.execute(text(statement))
         connection.execute(
             text(
                 """

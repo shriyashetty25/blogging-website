@@ -5,7 +5,6 @@ Usage:
     python run.py              # set up if needed, then run both
     python run.py --backend    # backend only
     python run.py --frontend   # frontend only
-    python run.py --no-db      # don't touch the Docker Postgres container
     python run.py --setup-only # install dependencies and exit
     python run.py --open       # also open the site in the browser
 
@@ -29,15 +28,6 @@ BACKEND = ROOT / "backend"
 FRONTEND = ROOT / "frontend"
 VENV = BACKEND / "venv"
 IS_WINDOWS = os.name == "nt"
-
-DB_CONTAINER = "blog-postgres"
-DB_RUN_ARGS = [
-    "-e", "POSTGRES_USER=blog_user",
-    "-e", "POSTGRES_PASSWORD=blog_pass",
-    "-e", "POSTGRES_DB=blog_db",
-    "-p", "5433:5432",
-    "postgres:16",
-]
 
 COLORS = {"backend": "\033[36m", "frontend": "\033[35m", "run": "\033[33m"}
 RESET = "\033[0m"
@@ -106,42 +96,6 @@ def setup_frontend():
         subprocess.run([npm, "install"], cwd=FRONTEND, check=True)
 
 
-def ensure_database():
-    docker = shutil.which("docker")
-    if not docker:
-        log("Docker not found; skipping database start. Make sure PostgreSQL is running.")
-        return
-
-    result = subprocess.run(
-        [docker, "ps", "-a", "--filter", f"name=^{DB_CONTAINER}$", "--format", "{{.State}}"],
-        capture_output=True, text=True,
-    )
-    if result.returncode != 0:
-        log("Docker is installed but not running; skipping database start.")
-        return
-
-    state = result.stdout.strip()
-    if state == "running":
-        log(f"Database container '{DB_CONTAINER}' is already running")
-    elif state:
-        log(f"Starting database container '{DB_CONTAINER}' ...")
-        subprocess.run([docker, "start", DB_CONTAINER], check=True, stdout=subprocess.DEVNULL)
-    else:
-        log(f"Creating database container '{DB_CONTAINER}' ...")
-        subprocess.run([docker, "run", "-d", "--name", DB_CONTAINER, *DB_RUN_ARGS], check=True)
-
-    log("Waiting for the database to accept connections ...")
-    for _ in range(60):
-        ready = subprocess.run(
-            [docker, "exec", DB_CONTAINER, "pg_isready", "-U", "blog_user", "-d", "blog_db"],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-        )
-        if ready.returncode == 0:
-            return
-        time.sleep(1)
-    log("Warning: database did not become ready within 60 seconds.")
-
-
 def stream_output(name, proc, open_url=None):
     for line in iter(proc.stdout.readline, ""):
         log(line.rstrip(), name)
@@ -189,7 +143,6 @@ def main():
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--backend", action="store_true", help="run only the backend")
     group.add_argument("--frontend", action="store_true", help="run only the frontend")
-    parser.add_argument("--no-db", action="store_true", help="don't start the Docker database")
     parser.add_argument("--setup-only", action="store_true", help="install dependencies and exit")
     parser.add_argument("--open", action="store_true", help="open the site in a browser once ready")
     parser.add_argument("--backend-port", type=int, default=8000)
@@ -206,9 +159,6 @@ def main():
     if args.setup_only:
         log("Setup complete.")
         return
-
-    if run_backend and not args.no_db:
-        ensure_database()
 
     procs = {}
     if run_backend:

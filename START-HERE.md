@@ -10,11 +10,9 @@ That's it. The website opens in your browser.
 
 ### The first time only
 
-- It can take **10–15 minutes**. Just wait.
+- It can take **5–10 minutes**. Just wait.
 - If Windows asks **"Do you want to allow this app to make changes?"**, click **Yes**.
 - If Windows shows **"Windows protected your PC"**, click **More info**, then **Run anyway**.
-- If **Docker** opens and asks you to accept its terms, click **Accept**. If it asks you to sign in, click **Skip**.
-- If the window says **"Please restart your computer"**, restart it, then double-click `start.bat` again.
 
 ### Logging in as admin
 
