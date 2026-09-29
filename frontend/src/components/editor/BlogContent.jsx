@@ -1,36 +1,27 @@
-import { useEditor, EditorContent } from '@tiptap/react'
-import { useEffect } from 'react'
-import { createEditorExtensions } from '../../editor/extensions'
+import { useMemo } from 'react'
+import { generateHTML } from '@tiptap/html'
+import { createRenderExtensions } from '../../editor/extensions'
 import { parseStoredContent } from '../../editor/content'
 import './BlogEditor.css'
 
-function BlogContent({ value }) {
-  const editor = useEditor({
-    editable: false,
-    extensions: createEditorExtensions(),
-    content: parseStoredContent(value),
-  })
+const renderExtensions = createRenderExtensions()
 
-  useEffect(() => {
-    if (!editor) {
-      return
-    }
-    editor.commands.setContent(parseStoredContent(value), false)
-  }, [editor, value])
-
-  if (!editor) {
-    return null
+function toHtml(value) {
+  try {
+    return generateHTML(parseStoredContent(value), renderExtensions)
+  } catch {
+    return ''
   }
+}
 
-  if (!value) {
+function BlogContent({ value }) {
+  const html = useMemo(() => (value ? toHtml(value) : ''), [value])
+
+  if (!html) {
     return <p className="page-intro">No content yet.</p>
   }
 
-  return (
-    <div className="blog-content">
-      <EditorContent editor={editor} />
-    </div>
-  )
+  return <div className="blog-content" dangerouslySetInnerHTML={{ __html: html }} />
 }
 
 export default BlogContent

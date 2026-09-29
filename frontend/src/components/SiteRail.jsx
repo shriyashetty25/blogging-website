@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useSettings } from '../context/SettingsContext'
 import { getPopularBlogs, getPublishedBlogs } from '../services/blogsApi'
+import { useInitialData } from '../ssr/InitialDataContext'
 import './SiteRail.css'
 
 function currentSlug(pathname) {
@@ -32,11 +33,17 @@ function RailList({ title, blogs }) {
 function SiteRail() {
   const location = useLocation()
   const { settings } = useSettings()
-  const [latest, setLatest] = useState([])
-  const [popular, setPopular] = useState([])
+  const initial = useInitialData()
+  const hasPreloaded = Boolean(initial.latestBlogs && initial.popularBlogs)
+  const [latest, setLatest] = useState(initial.latestBlogs || [])
+  const [popular, setPopular] = useState(initial.popularBlogs || [])
   const slug = currentSlug(location.pathname)
 
   useEffect(() => {
+    if (hasPreloaded) {
+      return
+    }
+
     async function load() {
       try {
         const [published, popularData] = await Promise.all([
@@ -52,7 +59,7 @@ function SiteRail() {
     }
 
     load()
-  }, [])
+  }, [hasPreloaded])
 
   const latestList = useMemo(
     () => latest.filter((blog) => blog.slug !== slug).slice(0, 5),

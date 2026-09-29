@@ -1,5 +1,6 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { InitialDataProvider } from './ssr/InitialDataContext'
 import { SettingsProvider } from './context/SettingsContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import GoogleAnalytics from './components/GoogleAnalytics'
@@ -22,11 +23,13 @@ import SeoSettingsPage from './pages/admin/SeoSettingsPage'
 import AnalyticsPage from './pages/admin/AnalyticsPage'
 import './App.css'
 
-function App() {
+// The router is supplied by the caller: BrowserRouter in the browser
+// (main.jsx), StaticRouter on the server (entry-server.jsx).
+function App({ initialData }) {
   return (
-    <AuthProvider>
-      <SettingsProvider>
-        <BrowserRouter>
+    <InitialDataProvider value={initialData}>
+      <AuthProvider>
+        <SettingsProvider>
           <GoogleAnalytics />
           <PageViewTracker />
           <Routes>
@@ -125,9 +128,9 @@ function App() {
             />
           </Route>
         </Routes>
-        </BrowserRouter>
-      </SettingsProvider>
-    </AuthProvider>
+        </SettingsProvider>
+      </AuthProvider>
+    </InitialDataProvider>
   )
 }
 

@@ -1,92 +1,61 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import BlogContent from '../components/editor/BlogContent'
 import SeoHead from '../components/SeoHead'
-import { getBlogBySlug, getPublishedBlogs } from '../services/blogsApi'
 import { recordView } from '../services/analyticsApi'
 import RelatedBlogs from '../components/RelatedBlogs'
 import AuthorCard from '../components/AuthorCard'
-import { getCategories } from '../services/categoriesApi'
-import { getSubcategories } from '../services/subcategoriesApi'
 import { formatDate } from '../utils/formatDate'
-import { toIdMap } from '../utils/lookupMaps'
+import { useInitialData } from '../ssr/InitialDataContext'
+import { loadBlogPage } from '../ssr/loaders'
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=80'
 
+function trackView(blog) {
+  if (blog) {
+    recordView({ path: `/blog/${blog.slug}`, blog_id: blog.id })
+  }
+}
+
 function BlogDetailsPage() {
   const { slug } = useParams()
-  const [blog, setBlog] = useState(null)
-  const [category, setCategory] = useState(null)
-  const [subcategory, setSubcategory] = useState(null)
-  const [related, setRelated] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const initial = useInitialData().blogPage
+  const preloaded = initial && initial.slug === slug ? initial : null
+  const [page, setPage] = useState(preloaded)
+  const [loading, setLoading] = useState(!preloaded)
+  const loadedSlug = useRef(preloaded ? slug : null)
 
   useEffect(() => {
-    let cancelled = false
-
-    async function load() {
-      setLoading(true)
-      setError(null)
-      setRelated([])
-
-      try {
-        const [blogData, categories, subcategories] = await Promise.all([
-          getBlogBySlug(slug),
-          getCategories(),
-          getSubcategories(),
-        ])
-
-        if (cancelled) {
-          return
-        }
-
-        if (blogData.status !== 'PUBLISHED') {
-          setBlog(null)
-          setError('This story is not published.')
-          return
-        }
-
-        const categoriesById = toIdMap(categories)
-        const subcategoriesById = toIdMap(subcategories)
-        setBlog(blogData)
-        setCategory(categoriesById[blogData.category_id] || null)
-        setSubcategory(subcategoriesById[blogData.subcategory_id] || null)
-        recordView({ path: `/blog/${blogData.slug}`, blog_id: blogData.id })
-
-        const published = await getPublishedBlogs({
-          category_id: blogData.category_id,
-        })
-        if (cancelled) {
-          return
-        }
-        const others = published.filter((item) => item.id !== blogData.id)
-        const sameSub = others.filter(
-          (item) => item.subcategory_id === blogData.subcategory_id,
-        )
-        const sameCategory = others.filter(
-          (item) => item.subcategory_id !== blogData.subcategory_id,
-        )
-        setRelated([...sameSub, ...sameCategory].slice(0, 3))
-      } catch (err) {
-        if (cancelled) {
-          return
-        }
-        setBlog(null)
-        setError(err.message || 'Story not found')
-      } finally {
-        if (!cancelled) {
-          setLoading(false)
-        }
-      }
+    if (loadedSlug.current === slug) {
+      setLoading(false)
+      trackView(page?.blog)
+      return undefined
     }
 
-    load()
+    let cancelled = false
+    setLoading(true)
+    loadBlogPage(slug).then((result) => {
+      if (cancelled) {
+        return
+      }
+      loadedSlug.current = slug
+      setPage(result)
+      setLoading(false)
+      trackView(result.blog)
+    })
+
     return () => {
       cancelled = true
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug])
+
+  const blog = page?.blog
+  const category = page?.category
+  const subcategory = page?.subcategory
+  const related = page?.related || []
+  const error = page?.error
 
   if (loading) {
     return (
@@ -119,7 +88,7 @@ function BlogDetailsPage() {
         image={blog.featured_image}
         type="article"
       />
-      <p className="article-meta">
+      <p className="article-meta" suppressHydrationWarning>
         {category ? (
           <Link to={`/${category.slug}`}>{category.name}</Link>
         ) : (

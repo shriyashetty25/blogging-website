@@ -57,7 +57,7 @@ On every run, the script:
 2. Installs backend packages from `backend/requirements.txt`, but only on the first run or when that file changes.
 3. Copies `backend/.env.example` to `backend/.env` if `.env` is missing.
 4. Runs `npm install` in `frontend/` if `node_modules` is missing or `package-lock.json` has changed.
-5. Starts `uvicorn app.main:app --reload` on port 8000 and `npm run dev` on port 5173.
+5. Starts `uvicorn app.main:app --reload` on port 8000 and `npm run dev` (the server-side rendering server, `frontend/server.js`) on port 5173.
 6. If either server crashes, it stops the other one too.
 
 The first run can take a few minutes while dependencies install. Later runs start almost immediately.
@@ -77,7 +77,24 @@ The first run can take a few minutes while dependencies install. Later runs star
 
 On macOS/Linux, replace `python` with `python3`.
 
-Note: the frontend proxies `/sitemap.xml` and `/robots.txt` to port 8000 (see `frontend/vite.config.js`). If you change the backend port, update that file too.
+Note: the frontend expects the backend on port 8000. If you change the backend port, update `API_URL` in `frontend/src/services/api.js` and set the `API_URL` environment variable for `frontend/server.js` (for example `API_URL=http://127.0.0.1:9000`).
+
+## Server-side rendering
+
+Public pages are rendered on the server, so the HTML already contains the page title, meta description, share tags (`og:*`, `twitter:*`), menu and, on post pages, the full article. This means search engines and link previews (WhatsApp, Facebook) see the content without running JavaScript. After the page loads, React takes over as usual.
+
+- Admin pages (`/admin/...`) are still rendered in the browser only.
+- A post that doesn't exist, or isn't published, returns HTTP status 404.
+
+To check it, open a post, right-click, and choose **View page source**. The article text, `<title>`, `<meta name="description">` and `og:title` are all in the source.
+
+For a deployed site, build once and run the production server:
+
+```bash
+cd frontend
+npm run build
+npm start          # serves on port 5173; add -- --port 80 to change it
+```
 
 ## Configuration
 

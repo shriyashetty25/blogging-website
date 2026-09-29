@@ -2,25 +2,51 @@ import { useEffect, useMemo, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { getCategories } from '../services/categoriesApi'
 import { getSubcategories } from '../services/subcategoriesApi'
+import { useInitialData } from '../ssr/InitialDataContext'
 import './CategorySidebar.css'
+
+function onlyActive(items) {
+  return (items || []).filter((item) => item.status === 'active')
+}
+
+function categorySlugFromPath(pathname) {
+  const segment = pathname.split('/').filter(Boolean)[0]
+  if (
+    !segment ||
+    segment === 'blogs' ||
+    segment === 'blog' ||
+    segment === 'admin'
+  ) {
+    return null
+  }
+  return segment
+}
 
 function CategorySidebar() {
   const location = useLocation()
-  const [categories, setCategories] = useState([])
-  const [subcategories, setSubcategories] = useState([])
-  const [openSlug, setOpenSlug] = useState(null)
+  const initial = useInitialData()
+  const hasPreloaded = Boolean(initial.categories && initial.subcategories)
+  const [categories, setCategories] = useState(() => onlyActive(initial.categories))
+  const [subcategories, setSubcategories] = useState(() =>
+    onlyActive(initial.subcategories),
+  )
+  const [openSlug, setOpenSlug] = useState(() =>
+    categorySlugFromPath(location.pathname),
+  )
 
   useEffect(() => {
+    if (hasPreloaded) {
+      return
+    }
+
     async function load() {
       try {
         const [categoryData, subcategoryData] = await Promise.all([
           getCategories(),
           getSubcategories(),
         ])
-        setCategories(categoryData.filter((item) => item.status === 'active'))
-        setSubcategories(
-          subcategoryData.filter((item) => item.status === 'active'),
-        )
+        setCategories(onlyActive(categoryData))
+        setSubcategories(onlyActive(subcategoryData))
       } catch {
         setCategories([])
         setSubcategories([])
@@ -28,20 +54,12 @@ function CategorySidebar() {
     }
 
     load()
-  }, [])
+  }, [hasPreloaded])
 
-  const activeCategorySlug = useMemo(() => {
-    const segment = location.pathname.split('/').filter(Boolean)[0]
-    if (
-      !segment ||
-      segment === 'blogs' ||
-      segment === 'blog' ||
-      segment === 'admin'
-    ) {
-      return null
-    }
-    return segment
-  }, [location.pathname])
+  const activeCategorySlug = useMemo(
+    () => categorySlugFromPath(location.pathname),
+    [location.pathname],
+  )
 
   useEffect(() => {
     if (activeCategorySlug) {

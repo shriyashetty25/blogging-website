@@ -1,11 +1,13 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { getSettings } from '../services/settingsApi'
+import { useInitialData } from '../ssr/InitialDataContext'
 
 const SettingsContext = createContext(null)
 
 export function SettingsProvider({ children }) {
-  const [settings, setSettings] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const preloaded = useInitialData().settings
+  const [settings, setSettings] = useState(preloaded || null)
+  const [loading, setLoading] = useState(!preloaded)
 
   async function refresh() {
     const data = await getSettings()
@@ -14,9 +16,13 @@ export function SettingsProvider({ children }) {
   }
 
   useEffect(() => {
+    if (preloaded) {
+      return
+    }
     refresh()
       .catch(() => setSettings(null))
       .finally(() => setLoading(false))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const value = useMemo(

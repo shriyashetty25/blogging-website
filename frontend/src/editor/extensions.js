@@ -8,7 +8,9 @@ import TableHeader from '@tiptap/extension-table-header'
 import TableCell from '@tiptap/extension-table-cell'
 import Placeholder from '@tiptap/extension-placeholder'
 
-export function createEditorExtensions({ placeholder } = {}) {
+// Extensions that define the document schema and its HTML output.
+// Used by the editor and by the static renderer for published posts.
+export function createRenderExtensions() {
   return [
     StarterKit.configure({
       heading: {
@@ -42,6 +44,12 @@ export function createEditorExtensions({ placeholder } = {}) {
     TableRow,
     TableHeader,
     TableCell,
+  ]
+}
+
+export function createEditorExtensions({ placeholder } = {}) {
+  return [
+    ...createRenderExtensions(),
     Placeholder.configure({
       placeholder: placeholder || 'Start writing your story...',
     }),

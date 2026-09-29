@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { getNavbarCategories } from '../services/blogsApi'
+import { useInitialData } from '../ssr/InitialDataContext'
 import './Navbar.css'
 
 function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
+  const preloaded = useInitialData().navbar
   const [query, setQuery] = useState('')
-  const [topCategories, setTopCategories] = useState([])
+  const [topCategories, setTopCategories] = useState(preloaded || [])
 
   useEffect(() => {
     let ignore = false
@@ -57,9 +59,15 @@ function Navbar() {
           <NavLink to="/admin">Admin</NavLink>
         </nav>
 
-        <form className="navbar-search" onSubmit={handleSearch}>
+        <form
+          className="navbar-search"
+          action="/blogs"
+          method="get"
+          onSubmit={handleSearch}
+        >
           <input
             type="search"
+            name="q"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search"

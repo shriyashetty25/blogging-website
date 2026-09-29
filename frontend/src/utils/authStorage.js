@@ -1,12 +1,14 @@
 const TOKEN_KEY = 'blog_admin_token'
 const USER_KEY = 'blog_admin_user'
 
+const isBrowser = typeof window !== 'undefined'
+
 export function getToken() {
-  return localStorage.getItem(TOKEN_KEY)
+  return isBrowser ? localStorage.getItem(TOKEN_KEY) : null
 }
 
 export function getStoredUser() {
-  const raw = localStorage.getItem(USER_KEY)
+  const raw = isBrowser ? localStorage.getItem(USER_KEY) : null
   if (!raw) {
     return null
   }
